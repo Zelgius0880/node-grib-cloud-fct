@@ -24,8 +24,8 @@ async function readToken() {
 
 export const notify = functions.https.onCall((data, context) => {
 
-    let v : any;
-    readToken().then(value => {
+    let v: any;
+    return readToken().then(value => {
         v = value;
         // let token = store.get("fcm.grip.token");
         console.log(v.token);
@@ -40,22 +40,21 @@ export const notify = functions.https.onCall((data, context) => {
 
 // Send a message to the device corresponding to the provided
 // registration token.
-        admin.messaging().send(message)
+        return admin.messaging().send(message)
             .then((r) => {
                 // Response is a message ID string.
                 console.log('Successfully sent message:', r);
-                return {data: {error: false}};
+                return Promise.resolve( {error: false});
 
             })
             .catch((error) => {
                 console.log('Error sending message:', error);
-                return {data: {error: true, message: error.toString()}};
+                return Promise.resolve( {error: true, message: error.toString()});
 
             });
     }).catch((e) => {
         console.log('Error message:', e);
-        return e;
-
+        return {error: true, message: e.toString()};
     })
 });
 
